@@ -671,4 +671,56 @@ function App() {
 }
 
 export default App;
-"
+
+```
+Most up-to-date Immersive Artifact for "github_upload_guide_detailed" is:
+
+```markdown
+### Adım Adım GitHub ve Netlify ile Web Sitesi Yayınlama
+
+Bu rehber, hazırladığımız dinamik React uygulamasını, GitHub ve Netlify'ın ücretsiz servislerini kullanarak nasıl yayınlayacağınızı adım adım anlatmaktadır.
+
+---
+
+### Bölüm 1, 2, 3: İlk Kurulum Adımları
+
+Bu adımları başarıyla tamamladınız. Projeniz GitHub'da ve Netlify'a bağlı durumda.
+
+---
+
+### Bölüm 4: Firebase Bilgilerini Netlify'a Ekleme
+
+Şu an bulunduğunuz **"Build & deploy"** ayarları sayfası, projenizin "beynini" yapılandıracağımız yerdir.
+
+**1. "Environment variables" Bölümünü Bulun**
+   - Gönderdiğiniz ekranda, sayfayı biraz aşağıya kaydırın.
+   - **"Build settings"** başlığının hemen altında **"Environment variables"** (Ortam Değişkenleri) bölümünü göreceksiniz.
+
+   ![Netlify Ortam Değişkenleri Konumu](https://storage.googleapis.com/context-images/image_aad7c4.jpg)
+
+**2. Değişkenleri Düzenlemeye Başlayın**
+   - "Environment variables" bölümündeki **"Edit variables"** (Değişkenleri düzenle) butonuna tıklayın.
+
+**3. Değişkenleri Teker Teker Ekleyin**
+   - Karşınıza "Key" (Anahtar) ve "Value" (Değer) girebileceğiniz alanlar çıkacak.
+   - **"Add a new variable"** (Yeni değişken ekle) seçeneğine tıklayarak, diğer Canvas'ta açık olan **"Firebase Ortam Değişkenleri"** dokümanındaki 6 adet anahtar/değer çiftini **sırasıyla ve dikkatlice** bu alanlara girin.
+   - Her bir değişkeni ekledikten sonra "Save" (Kaydet) butonuna basarak ilerleyin.
+
+   **Örnek (ilk değişken için):**
+     - **Key:** `REACT_APP_FIREBASE_API_KEY`
+     - **Value:** `AIzaSyCXNTfTV-8TyIpLLJlPhF5cdoPjVitukqQ`
+
+   Bu işlemi 6 değişkenin tamamı için tekrarlayın.
+
+**4. Siteyi Yeniden Yayınlayın (Re-deploy)**
+   - Tüm 6 değişkeni ekleyip kaydettikten sonra, sol taraftaki dikey menüden **"Deploys"** (Yayınlamalar) sekmesine tıklayın.
+   - Açılan sayfada, **"Trigger deploy"** açılır menüsüne tıklayın ve **"Deploy site"** seçeneğini seçin.
+
+**5. Yayınlamanın Tamamlanmasını Bekleyin**
+   - Netlify, projenizi bu yeni bilgilerle tekrar oluşturmaya başlayacaktır. Bu sefer "Building" adımının yeşil bir "Complete" (Tamamlandı) etiketi aldığını göreceksİniz.
+   - İşlem tamamlandığında, sayfanın üst kısmında sitenizin canlı linki görünecektir.
+
+**6. Son Adım: Admin Kullanıcısını Oluşturma**
+   - Siteniz artık yayında! Son olarak, admin paneline giriş yapabilmek için Firebase projenizin **Authentication** bölümüne gidin ve "Add user" diyerek `bilgi@akbayhukuk.com` e-postası ve `akbay26818` şifresi ile bir kullanıcı oluşturun.
+
+Bu adımlardan sonra siteniz tamamen çalışır durumda olacaktır.
