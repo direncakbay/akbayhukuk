@@ -77,7 +77,7 @@ const Notification = ({ message, type, onDismiss }) => {
         return null;
     }
 
-    const baseClasses = "fixed top-5 right-5 p-4 rounded-lg shadow-lg text-white transition-opacity duration-300";
+    const baseClasses = "fixed top-5 right-5 p-4 rounded-lg shadow-lg text-white transition-opacity duration-300 z-50";
     const typeClasses = type === 'success' ? 'bg-green-500' : 'bg-red-500';
 
     return (
@@ -93,7 +93,7 @@ const Notification = ({ message, type, onDismiss }) => {
 const Header = ({ setPage }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     return (
-        <header className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50">
+        <header className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-40">
             <div className="container mx-auto px-6 py-2">
                 <div className="flex items-center justify-between">
                     <Logo />
@@ -135,22 +135,28 @@ const Hero = () => {
 };
 
 const KurumsalSection = ({ db, appId, isAuthReady }) => {
-    const [kurumsalData, setKurumsalData] = useState({ guldane_bio: "Yükleniyor...", direnc_bio: "Yükleniyor..." });
+    const [kurumsalData, setKurumsalData] = useState(null);
+    const [vizyonData, setVizyonData] = useState([]);
 
     useEffect(() => {
-        if (!db || !appId || !isAuthReady) return; // Wait for auth
-        const docRef = doc(db, `artifacts/${appId}/public/data/kurumsal`, "hakkimizda");
-        const unsubscribe = onSnapshot(docRef, (doc) => {
-            if (doc.exists()) {
-                setKurumsalData(doc.data());
-            } else {
-                console.log("Kurumsal veri bulunamadı!");
-                setKurumsalData({ guldane_bio: "İçerik bulunamadı.", direnc_bio: "İçerik bulunamadı." });
-            }
-        }, (error) => {
-             console.error("Kurumsal data onSnapshot error:", error);
+        if (!db || !appId || !isAuthReady) return;
+
+        const hakkimizdaRef = doc(db, `artifacts/${appId}/public/data/kurumsal`, "hakkimizda");
+        const vizyonRef = collection(db, `artifacts/${appId}/public/data/vizyon`);
+
+        const unsubHakkimizda = onSnapshot(hakkimizdaRef, (doc) => {
+            setKurumsalData(doc.exists() ? doc.data() : { guldane_bio: "İçerik Yükleniyor...", direnc_bio: "İçerik Yükleniyor..." });
         });
-        return () => unsubscribe();
+
+        const unsubVizyon = onSnapshot(vizyonRef, (snapshot) => {
+            const vizyonList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setVizyonData(vizyonList);
+        });
+
+        return () => {
+            unsubHakkimizda();
+            unsubVizyon();
+        };
     }, [db, appId, isAuthReady]);
 
     return (
@@ -165,42 +171,49 @@ const KurumsalSection = ({ db, appId, isAuthReady }) => {
                         <h3 className="text-3xl md:text-4xl font-bold text-gray-800">Vizyonumuz</h3>
                     </div>
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        <div className="bg-gray-50 p-8 rounded-lg shadow-sm"><h4>Yeni Nesil Hizmet</h4><p>Mekândan bağımsız etkileşimli toplantılar ve belge paylaşımı sağlayan online altyapımızla ulaşılabilir ve düşük maliyetli hizmet sunuyoruz.</p></div>
-                        <div className="bg-gray-50 p-8 rounded-lg shadow-sm"><h4>Güçlü İş Birlikleri</h4><p>Alanında uzman akademisyenler ve sektör danışmanları ile müvekkillerimizin gereksinimlerine uygun, çözüm odaklı bir anlayışı benimsiyoruz.</p></div>
-                        <div className="bg-gray-50 p-8 rounded-lg shadow-sm"><h4>Şeffaflık</h4><p>Tüm hizmetlerimizi şeffaflık ve hesap verebilirlik ilkeleri üzerine inşa ediyor, süreç hakkında düzenli bilgilendirmeler yapıyoruz.</p></div>
-                        <div className="bg-gray-50 p-8 rounded-lg shadow-sm"><h4>Etkili Yardım</h4><p>Sadece uyuşmazlık anında değil, öncesinde de olası sorunları değerlendirerek hem uyuşmazlık öncesi hem de sonrası için yanınızdayız.</p></div>
-                        <div className="bg-gray-50 p-8 rounded-lg shadow-sm"><h4>Kuram, Kural ve Kurum</h4><p>Sorunlarınıza anlık çözümler yerine, hukuku kuramsal düzeyde değerlendirerek kalıcı ve sağlam çözümler öneriyoruz.</p></div>
+                        {vizyonData.length > 0 ? vizyonData.map(item => (
+                            <div key={item.id} className="bg-gray-50 p-8 rounded-lg shadow-sm">
+                                <h4 className="text-xl font-semibold mb-2 text-blue-700">{item.title}</h4>
+                                <p className="text-gray-600">{item.content}</p>
+                            </div>
+                        )) : <p>Vizyonumuz yükleniyor...</p>}
                     </div>
                 </div>
-                <div>
-                    <div className="text-center mb-12">
-                        <h3 className="text-3xl md:text-4xl font-bold text-gray-800">Hakkımızda</h3>
-                    </div>
-                    <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-                        <div className="bg-gray-100 p-8 rounded-lg shadow-md">
-                            <h4 className="text-2xl font-bold mb-4">Av. Güldane Dörtbudak Akbay</h4>
-                            <p className="text-gray-600 leading-relaxed whitespace-pre-line">{kurumsalData.guldane_bio}</p>
+                {kurumsalData && (
+                    <div>
+                        <div className="text-center mb-12">
+                            <h3 className="text-3xl md:text-4xl font-bold text-gray-800">Hakkımızda</h3>
                         </div>
-                        <div className="bg-gray-100 p-8 rounded-lg shadow-md">
-                            <h4 className="text-2xl font-bold mb-4">Arb. Dr. Direnç Akbay</h4>
-                            <p className="text-gray-600 leading-relaxed whitespace-pre-line">{kurumsalData.direnc_bio}</p>
+                        <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+                            <div className="bg-gray-100 p-8 rounded-lg shadow-md">
+                                <h4 className="text-2xl font-bold mb-4">Av. Güldane Dörtbudak Akbay</h4>
+                                <p className="text-gray-600 leading-relaxed whitespace-pre-line">{kurumsalData.guldane_bio}</p>
+                            </div>
+                            <div className="bg-gray-100 p-8 rounded-lg shadow-md">
+                                <h4 className="text-2xl font-bold mb-4">Arb. Dr. Direnç Akbay</h4>
+                                <p className="text-gray-600 leading-relaxed whitespace-pre-line">{kurumsalData.direnc_bio}</p>
+                            </div>
                         </div>
                     </div>
-                </div>
+                )}
             </div>
         </section>
     );
 };
 
-const HizmetlerSection = () => {
-    const services = [
-            { title: "Dava ve İcra Takipleri", content: "Kamu hukuku veya özel hukuktan kaynaklanan her türlü hukuk sürecinin başlatılması, yürütülmesi ve takibi." },
-            { title: "Hukukî Danışmanlık", content: "Gerçek ve tüzel kişilerin uyuşmazlık öncesi ve sonrası süreçlerinin değerlendirilmesi, sorularının cevaplandırılması, değişik olasılıklar dikkate alınarak hukukî tavsiyelerde bulunulması, raporlar ve sözleşmeler hazırlanması." },
-            { title: "Meslek Profesyonelleri İçin Hukukî Süreç Yönetimi ve Dava Koçluğu", content: "Çözümü uzmanlık gerektiren konularda özellikle avukatlara yönelik sağlanan hizmetlerdir. Bu çerçevede, uzmanlardan oluşan çözüm ortaklarımızca değerlendirmeler yapılması, sanal veya fizikî toplantılar düzenlenmesi, hukukî süreç yönetimi, dava koçluğu, uzmanlardan dava veya uyuşmazlıklara ilişkin mütalaalar ve raporlar alınması, dava stratejilerinin belirlenmesi gibi ihtiyaç odaklı kapsamlı çözümler sunulmakta ve organizasyonlar yapılabilmektedir." },
-            { title: "Arabuluculuk", content: "Tarafların üzerinde serbestçe tasarruf edebilecekleri iş veya işlemlerden doğan özel hukuk uyuşmazlıklarının çözümlenmesinde, alternatif bir çözüm yolu olarak arabuluculuk hizmeti sunulmaktadır. Özellikle ticari uyuşmazlıkların mahkeme önüne gitmeden çözümlenebilmesi için profesyonel müzakere teknikleri uygulanır." },
-            { title: "Hukukî Eğitim Faaliyetleri", content: "Çözüm ortaklarımız ve uzmanlarımızın da katkısıyla danışanlarımız veya müvekkillerimize her türlü hukukî eğitim verilebilmektedir. Bu eğitimler, spesifik bilgi gerektiren alanlar için meslek profesyonellerine yönelik olabileceği gibi şirketlerin ilgili departman personellerine yönelik de olabilmektedir." }
-        ];
+const HizmetlerSection = ({ db, appId, isAuthReady }) => {
+    const [services, setServices] = useState([]);
     const [openIndex, setOpenIndex] = useState(null);
+
+    useEffect(() => {
+        if (!db || !appId || !isAuthReady) return;
+        const servicesRef = collection(db, `artifacts/${appId}/public/data/hizmetler`);
+        const unsubscribe = onSnapshot(servicesRef, (snapshot) => {
+            const servicesList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setServices(servicesList);
+        });
+        return () => unsubscribe();
+    }, [db, appId, isAuthReady]);
 
     return (
         <section id="hizmetler" className="py-20 bg-gray-50">
@@ -209,8 +222,8 @@ const HizmetlerSection = () => {
                     <h2 className="text-3xl md:text-4xl font-bold text-gray-900" style={{fontFamily: "'Playfair Display', serif"}}>Hizmetlerimiz</h2>
                 </div>
                 <div className="space-y-4">
-                    {services.map((service, index) => (
-                        <div key={index} className="bg-white rounded-lg shadow-sm">
+                    {services.length > 0 ? services.map((service, index) => (
+                        <div key={service.id} className="bg-white rounded-lg shadow-sm">
                             <button onClick={() => setOpenIndex(openIndex === index ? null : index)} className="w-full flex justify-between items-center p-5 text-left font-semibold text-gray-800 hover:bg-gray-100">
                                 <span>{service.title}</span>
                                 <svg className={`w-5 h-5 transform transition-transform ${openIndex === index ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
@@ -219,7 +232,7 @@ const HizmetlerSection = () => {
                                 <div className="px-5 pb-5 text-gray-600"><p>{service.content}</p></div>
                             )}
                         </div>
-                    ))}
+                    )) : <p>Hizmetlerimiz yükleniyor...</p>}
                 </div>
             </div>
         </section>
@@ -231,25 +244,25 @@ const YayinlarSection = ({ db, appId, isAuthReady }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!db || !appId || !isAuthReady) return; // Wait for auth
+        if (!db || !appId || !isAuthReady) return;
         const q = query(collection(db, `artifacts/${appId}/public/data/yayinlar`));
-        const unsubscribe = onSnapshot(q, (querySnapshot) => {
-            const yayinlarData = [];
-            querySnapshot.forEach((doc) => {
-                yayinlarData.push({ id: doc.id, ...doc.data() });
-            });
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const yayinlarData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             setYayinlar(yayinlarData);
-            setLoading(false);
-        }, (error) => {
-            console.error("Yayınlar alınırken hata: ", error);
             setLoading(false);
         });
         return () => unsubscribe();
     }, [db, appId, isAuthReady]);
 
-    const kitaplar = yayinlar.filter(y => y.type === 'Kitap');
-    const makaleler = yayinlar.filter(y => y.type === 'Makale');
-    const bildiriler = yayinlar.filter(y => y.type === 'Bildiri');
+    const groupYayinlar = (yayinlar) => {
+        return yayinlar.reduce((acc, yayin) => {
+            (acc[yayin.type] = acc[yayin.type] || []).push(yayin);
+            return acc;
+        }, {});
+    };
+
+    const groupedYayinlar = groupYayinlar(yayinlar);
+    const categoryOrder = ['Kitap', 'Kitap İçi Bölüm', 'Makale', 'Bildiri', 'Diğer'];
 
     if (loading) {
         return <div className="text-center py-20">Yayınlar yükleniyor...</div>;
@@ -262,32 +275,17 @@ const YayinlarSection = ({ db, appId, isAuthReady }) => {
                     <h2 className="text-3xl md:text-4xl font-bold text-gray-900" style={{fontFamily: "'Playfair Display', serif"}}>Akademik Yayınlar</h2>
                 </div>
                 <div className="bg-gray-50 p-8 rounded-lg shadow-md">
-                    {kitaplar.length > 0 && (
-                        <>
-                            <h3 className="text-2xl font-bold mb-6">Kitap</h3>
-                            <ul className="space-y-4 list-disc list-inside text-gray-700 mb-8">
-                                {kitaplar.map(y => <li key={y.id}>{y.text}</li>)}
-                            </ul>
-                            <hr className="my-6"/>
-                        </>
-                    )}
-                    {makaleler.length > 0 && (
-                         <>
-                            <h3 className="text-2xl font-bold mb-6">Makaleler</h3>
-                            <ul className="space-y-4 list-disc list-inside text-gray-700 mb-8">
-                                {makaleler.map(y => <li key={y.id}>{y.text}</li>)}
-                            </ul>
-                            <hr className="my-6"/>
-                        </>
-                    )}
-                    {bildiriler.length > 0 && (
-                         <>
-                            <h3 className="text-2xl font-bold mb-6">Bildiriler</h3>
-                            <ul className="space-y-4 list-disc list-inside text-gray-700">
-                                {bildiriler.map(y => <li key={y.id}>{y.text}</li>)}
-                            </ul>
-                        </>
-                    )}
+                    {categoryOrder.map(category => (
+                        groupedYayinlar[category] && (
+                            <div key={category}>
+                                <h3 className="text-2xl font-bold mb-6 mt-4">{category}</h3>
+                                <ul className="space-y-4 list-disc list-inside text-gray-700">
+                                    {groupedYayinlar[category].map(y => <li key={y.id}>{y.text}</li>)}
+                                </ul>
+                                <hr className="my-8"/>
+                            </div>
+                        )
+                    ))}
                 </div>
             </div>
         </section>
@@ -396,35 +394,48 @@ const AdminLogin = ({ auth, setNotification, ADMIN_EMAIL }) => {
 };
 
 const AdminDashboard = ({ auth, db, setPage, setNotification, appId }) => {
-    const [kurumsal, setKurumsal] = useState({ guldane_bio: '', direnc_bio: '' });
+    const [kurumsal, setKurumsal] = useState(null);
+    const [vizyon, setVizyon] = useState([]);
+    const [hizmetler, setHizmetler] = useState([]);
     const [yayinlar, setYayinlar] = useState([]);
+    
+    const [editingVizyon, setEditingVizyon] = useState(null);
+    const [editingHizmet, setEditingHizmet] = useState(null);
     const [newYayin, setNewYayin] = useState({ type: 'Makale', text: '' });
     
-    // Verileri çek
     useEffect(() => {
-        const kurumsalRef = doc(db, `artifacts/${appId}/public/data/kurumsal`, "hakkimizda");
-        const yayinlarCollectionRef = collection(db, `artifacts/${appId}/public/data/yayinlar`);
+        if (!db || !appId) return;
 
-        const getKurumsal = async () => {
-            const docSnap = await getDoc(kurumsalRef);
-            if (docSnap.exists()) setKurumsal(docSnap.data());
-        };
-        getKurumsal();
-
-        const unsubscribe = onSnapshot(yayinlarCollectionRef, (snapshot) => {
+        const unsubKurumsal = onSnapshot(doc(db, `artifacts/${appId}/public/data/kurumsal`, "hakkimizda"), (doc) => {
+            setKurumsal(doc.exists() ? { id: doc.id, ...doc.data() } : null);
+        });
+        const unsubVizyon = onSnapshot(collection(db, `artifacts/${appId}/public/data/vizyon`), (snapshot) => {
+            setVizyon(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        });
+        const unsubHizmetler = onSnapshot(collection(db, `artifacts/${appId}/public/data/hizmetler`), (snapshot) => {
+            setHizmetler(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+        });
+        const unsubYayinlar = onSnapshot(collection(db, `artifacts/${appId}/public/data/yayinlar`), (snapshot) => {
             setYayinlar(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
         });
-        return unsubscribe;
+
+        return () => {
+            unsubKurumsal();
+            unsubVizyon();
+            unsubHizmetler();
+            unsubYayinlar();
+        };
     }, [db, appId]);
 
-    const handleKurumsalUpdate = async (e) => {
-        e.preventDefault();
+    const handleUpdate = async (collectionName, docId, data) => {
         try {
-            const kurumsalRef = doc(db, `artifacts/${appId}/public/data/kurumsal`, "hakkimizda");
-            await updateDoc(kurumsalRef, kurumsal);
-            setNotification({ type: 'success', message: 'Kurumsal bilgileri güncellendi.' });
+            const docRef = doc(db, `artifacts/${appId}/public/data/${collectionName}`, docId);
+            await updateDoc(docRef, data);
+            setNotification({ type: 'success', message: 'Başarıyla güncellendi.' });
+            setEditingHizmet(null);
+            setEditingVizyon(null);
         } catch (error) {
-            console.error("Kurumsal güncelleme hatası: ", error);
+            console.error("Güncelleme hatası: ", error);
             setNotification({ type: 'error', message: 'Güncelleme başarısız oldu.' });
         }
     };
@@ -433,8 +444,7 @@ const AdminDashboard = ({ auth, db, setPage, setNotification, appId }) => {
         e.preventDefault();
         if (newYayin.text.trim() === '') return;
         try {
-            const yayinlarCollectionRef = collection(db, `artifacts/${appId}/public/data/yayinlar`);
-            await addDoc(yayinlarCollectionRef, newYayin);
+            await addDoc(collection(db, `artifacts/${appId}/public/data/yayinlar`), newYayin);
             setNewYayin({ type: 'Makale', text: '' });
             setNotification({ type: 'success', message: 'Yeni yayın eklendi.' });
         } catch (error) {
@@ -443,14 +453,13 @@ const AdminDashboard = ({ auth, db, setPage, setNotification, appId }) => {
         }
     };
 
-    const handleDeleteYayin = async (id) => {
+    const handleDelete = async (collectionName, docId) => {
         try {
-            const yayinDocRef = doc(db, `artifacts/${appId}/public/data/yayinlar`, id);
-            await deleteDoc(yayinDocRef);
-            setNotification({ type: 'success', message: 'Yayın silindi.' });
+            await deleteDoc(doc(db, `artifacts/${appId}/public/data/${collectionName}`, docId));
+            setNotification({ type: 'success', message: 'Başarıyla silindi.' });
         } catch (error) {
-            console.error("Yayın silme hatası: ", error);
-            setNotification({ type: 'error', message: 'Yayın silinemedi.' });
+            console.error("Silme hatası: ", error);
+            setNotification({ type: 'error', message: 'Silme işlemi başarısız oldu.' });
         }
     };
 
@@ -465,28 +474,66 @@ const AdminDashboard = ({ auth, db, setPage, setNotification, appId }) => {
                     </div>
                 </div>
 
-                {/* Kurumsal Bilgiler Formu */}
+                {/* Hakkımızda */}
                 <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-                    <h2 className="text-2xl font-semibold mb-4">Hakkımızda Bölümünü Düzenle</h2>
-                    <form onSubmit={handleKurumsalUpdate}>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 mb-2">Av. Güldane Dörtbudak Akbay - Biyografi</label>
-                            <textarea
-                                value={kurumsal.guldane_bio}
-                                onChange={(e) => setKurumsal({...kurumsal, guldane_bio: e.target.value})}
-                                className="w-full p-2 border rounded-lg h-32"
-                            />
+                    <h2 className="text-2xl font-semibold mb-4">Hakkımızda Bölümü</h2>
+                    {kurumsal && (
+                        <form onSubmit={(e) => { e.preventDefault(); handleUpdate('kurumsal', kurumsal.id, { guldane_bio: kurumsal.guldane_bio, direnc_bio: kurumsal.direnc_bio }); }}>
+                            <textarea value={kurumsal.guldane_bio} onChange={(e) => setKurumsal({...kurumsal, guldane_bio: e.target.value})} className="w-full p-2 border rounded-lg h-24 mb-2"/>
+                            <textarea value={kurumsal.direnc_bio} onChange={(e) => setKurumsal({...kurumsal, direnc_bio: e.target.value})} className="w-full p-2 border rounded-lg h-24 mb-4"/>
+                            <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded-lg">Kaydet</button>
+                        </form>
+                    )}
+                </div>
+
+                {/* Vizyon */}
+                <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+                    <h2 className="text-2xl font-semibold mb-4">Vizyon Bölümü</h2>
+                    {vizyon.map(item => (
+                        <div key={item.id} className="mb-4 p-4 border rounded-lg">
+                            {editingVizyon?.id === item.id ? (
+                                <form onSubmit={(e) => { e.preventDefault(); handleUpdate('vizyon', editingVizyon.id, { title: editingVizyon.title, content: editingVizyon.content }); }}>
+                                    <input value={editingVizyon.title} onChange={e => setEditingVizyon({...editingVizyon, title: e.target.value})} className="w-full p-2 border rounded-lg mb-2"/>
+                                    <textarea value={editingVizyon.content} onChange={e => setEditingVizyon({...editingVizyon, content: e.target.value})} className="w-full p-2 border rounded-lg h-20 mb-2"/>
+                                    <button type="submit" className="bg-green-500 text-white px-4 py-1 rounded-lg mr-2">Kaydet</button>
+                                    <button onClick={() => setEditingVizyon(null)} className="bg-gray-500 text-white px-4 py-1 rounded-lg">İptal</button>
+                                </form>
+                            ) : (
+                                <div className="flex justify-between items-center">
+                                    <div>
+                                        <h4 className="font-bold">{item.title}</h4>
+                                        <p>{item.content}</p>
+                                    </div>
+                                    <button onClick={() => setEditingVizyon(item)} className="bg-yellow-500 text-white px-4 py-1 rounded-lg">Düzenle</button>
+                                </div>
+                            )}
                         </div>
-                        <div className="mb-4">
-                            <label className="block text-gray-700 mb-2">Arb. Dr. Direnç Akbay - Biyografi</label>
-                            <textarea
-                                value={kurumsal.direnc_bio}
-                                onChange={(e) => setKurumsal({...kurumsal, direnc_bio: e.target.value})}
-                                className="w-full p-2 border rounded-lg h-32"
-                            />
+                    ))}
+                </div>
+
+                {/* Hizmetler */}
+                <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+                    <h2 className="text-2xl font-semibold mb-4">Hizmetler Bölümü</h2>
+                     {hizmetler.map(item => (
+                        <div key={item.id} className="mb-4 p-4 border rounded-lg">
+                            {editingHizmet?.id === item.id ? (
+                                <form onSubmit={(e) => { e.preventDefault(); handleUpdate('hizmetler', editingHizmet.id, { title: editingHizmet.title, content: editingHizmet.content }); }}>
+                                    <input value={editingHizmet.title} onChange={e => setEditingHizmet({...editingHizmet, title: e.target.value})} className="w-full p-2 border rounded-lg mb-2"/>
+                                    <textarea value={editingHizmet.content} onChange={e => setEditingHizmet({...editingHizmet, content: e.target.value})} className="w-full p-2 border rounded-lg h-20 mb-2"/>
+                                    <button type="submit" className="bg-green-500 text-white px-4 py-1 rounded-lg mr-2">Kaydet</button>
+                                    <button onClick={() => setEditingHizmet(null)} className="bg-gray-500 text-white px-4 py-1 rounded-lg">İptal</button>
+                                </form>
+                            ) : (
+                                <div className="flex justify-between items-center">
+                                    <div>
+                                        <h4 className="font-bold">{item.title}</h4>
+                                        <p>{item.content}</p>
+                                    </div>
+                                    <button onClick={() => setEditingHizmet(item)} className="bg-yellow-500 text-white px-4 py-1 rounded-lg">Düzenle</button>
+                                </div>
+                            )}
                         </div>
-                        <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded-lg">Kaydet</button>
-                    </form>
+                    ))}
                 </div>
 
                 {/* Yayınlar Yönetimi */}
@@ -498,7 +545,9 @@ const AdminDashboard = ({ auth, db, setPage, setNotification, appId }) => {
                              <select value={newYayin.type} onChange={e => setNewYayin({...newYayin, type: e.target.value})} className="p-2 border rounded-lg md:col-span-1">
                                  <option>Makale</option>
                                  <option>Kitap</option>
+                                 <option>Kitap İçi Bölüm</option>
                                  <option>Bildiri</option>
+                                 <option>Diğer</option>
                              </select>
                              <input 
                                  type="text" 
@@ -519,7 +568,7 @@ const AdminDashboard = ({ auth, db, setPage, setNotification, appId }) => {
                                     <span className="font-bold text-sm mr-2 bg-blue-200 text-blue-800 px-2 py-1 rounded-full">{y.type}</span>
                                     <span>{y.text}</span>
                                 </div>
-                                <button onClick={() => handleDeleteYayin(y.id)} className="text-red-500 hover:text-red-700">Sil</button>
+                                <button onClick={() => handleDelete('yayinlar', y.id)} className="text-red-500 hover:text-red-700">Sil</button>
                             </div>
                         ))}
                     </div>
@@ -536,9 +585,36 @@ const AdminDashboard = ({ auth, db, setPage, setNotification, appId }) => {
 const setupInitialData = async (db, appId) => {
     if (!appId || appId === 'default-app-id') return;
     try {
+        const collections = {
+            vizyon: [
+                { title: 'Yeni Nesil Hizmet', content: 'Mekândan bağımsız etkileşimli toplantılar ve belge paylaşımı sağlayan online altyapımızla ulaşılabilir ve düşük maliyetli hizmet sunuyoruz.' },
+                { title: 'Güçlü İş Birlikleri', content: 'Alanında uzman akademisyenler ve sektör danışmanları ile müvekkillerimizin gereksinimlerine uygun, çözüm odaklı bir anlayışı benimsiyoruz.' },
+                { title: 'Şeffaflık', content: 'Tüm hizmetlerimizi şeffaflık ve hesap verebilirlik ilkeleri üzerine inşa ediyor, süreç hakkında düzenli bilgilendirmeler yapıyoruz.' },
+                { title: 'Etkili Yardım', content: 'Sadece uyuşmazlık anında değil, öncesinde de olası sorunları değerlendirerek hem uyuşmazlık öncesi hem de sonrası için yanınızdayız.' },
+                { title: 'Kuram, Kural ve Kurum', content: 'Sorunlarınıza anlık çözümler yerine, hukuku kuramsal düzeyde değerlendirerek kalıcı ve sağlam çözümler öneriyoruz.' }
+            ],
+            hizmetler: [
+                { title: "Dava ve İcra Takipleri", content: "Kamu hukuku veya özel hukuktan kaynaklanan her türlü hukuk sürecinin başlatılması, yürütülmesi ve takibi." },
+                { title: "Hukukî Danışmanlık", content: "Gerçek ve tüzel kişilerin uyuşmazlık öncesi ve sonrası süreçlerinin değerlendirilmesi, sorularının cevaplandırılması, değişik olasılıklar dikkate alınarak hukukî tavsiyelerde bulunulması, raporlar ve sözleşmeler hazırlanması." },
+            ],
+            yayinlar: [
+                { type: 'Kitap', text: "Akbay, Direnç: Türk Ticaret Kanunu Tasarısı'na Göre Limited Ortaklık Genel Kurulunun Toplanma ve Karar Alma Esasları, İstanbul, 2010." },
+                { type: 'Makale', text: "Akbay, Direnç: Anonim Ortaklıklarda Özel Denetimin Konusu, D.E.Ü. Hukuk Fakültesi Dergisi, (21),2, 2019, s. 629-660." },
+            ]
+        };
+
+        for (const [colName, data] of Object.entries(collections)) {
+            const colRef = collection(db, `artifacts/${appId}/public/data/${colName}`);
+            const snapshot = await getDocs(colRef);
+            if (snapshot.empty) {
+                for (const item of data) {
+                    await addDoc(colRef, item);
+                }
+            }
+        }
+
         const kurumsalRef = doc(db, `artifacts/${appId}/public/data/kurumsal`, "hakkimizda");
         const kurumsalSnap = await getDoc(kurumsalRef);
-
         if (!kurumsalSnap.exists()) {
             await setDoc(kurumsalRef, {
                 guldane_bio: "1988 Ankara doğumludur. Dokuz Eylül Üniversitesi Hukuk Fakültesi'nden 2012 yılında mezun olmuştur. Lisans eğitimi süresince, İzmir ve Manisa'da çeşitli bürolarda çalışmıştır. Mezuniyet sonrası avukatlık stajını, 2013 yılında Manisa Barosu'nda tamamlamıştır. 2014 yılına kadar bağlı avukat olarak çalışmış, 2014 yılında Manisa'da Dörtbudak Hukuk Bürosu'nu kurmuştur. 2019 yılı sonunda İzmir'e taşınması sebebiyle, avukatlık faaliyetini İzmir Barosu'na bağlı olarak sürdürmeye başlamıştır.",
@@ -546,19 +622,6 @@ const setupInitialData = async (db, appId) => {
             });
         }
 
-        const yayinlarCollectionRef = collection(db, `artifacts/${appId}/public/data/yayinlar`);
-        const yayinlarSnap = await getDocs(yayinlarCollectionRef);
-        if (yayinlarSnap.empty) {
-            const initialYayinlar = [
-                { type: 'Kitap', text: "Akbay, Direnç: Türk Ticaret Kanunu Tasarısı'na Göre Limited Ortaklık Genel Kurulunun Toplanma ve Karar Alma Esasları, İstanbul, 2010." },
-                { type: 'Makale', text: "Akbay, Direnç: Anonim Ortaklıklarda Özel Denetimin Konusu, D.E.Ü. Hukuk Fakültesi Dergisi, (21),2, 2019, s. 629-660." },
-                { type: 'Makale', text: "Akbay, Direnç: Anonim Ortaklık Pay Sahipleri Arasında Yapılan Önalım Hakkı İçeren Sözleşmeler, İstanbul Hukuk Mecmuası, (77), 2, 2019, 697-746." },
-                { type: 'Bildiri', text: "Akbay, Direnç: Kripto Varlıkların Anonim Şirkete Sermaye Olarak Getirilmesi, Ticaret Sicili ve Şirketler Hukukuna Etkileri Sempozyumu, İzmir, 17.06.2022" }
-            ];
-            for (const yayin of initialYayinlar) {
-                await addDoc(yayinlarCollectionRef, yayin);
-            }
-        }
     } catch (error) {
         console.error("Initial data setup failed:", error);
     }
@@ -659,9 +722,8 @@ function App() {
             </style>
             <Header setPage={setPage} />
             <main>
-                <Hero />
                 <KurumsalSection db={db} appId={appId} isAuthReady={isAuthReady} />
-                <HizmetlerSection />
+                <HizmetlerSection db={db} appId={appId} isAuthReady={isAuthReady} />
                 <YayinlarSection db={db} appId={appId} isAuthReady={isAuthReady} />
                 <IletisimSection />
             </main>
