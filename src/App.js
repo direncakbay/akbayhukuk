@@ -722,6 +722,7 @@ function App() {
             </style>
             <Header setPage={setPage} />
             <main>
+                <Hero />
                 <KurumsalSection db={db} appId={appId} isAuthReady={isAuthReady} />
                 <HizmetlerSection db={db} appId={appId} isAuthReady={isAuthReady} />
                 <YayinlarSection db={db} appId={appId} isAuthReady={isAuthReady} />
