@@ -569,24 +569,22 @@ function App() {
     // Firebase state
     const [auth, setAuth] = useState(null);
     const [db, setDb] = useState(null);
-    const [appId, setAppId] = useState('default-app-id');
+    const [appId, setAppId] = useState(null);
     const [isAuthReady, setIsAuthReady] = useState(false);
     const dataSetupComplete = useRef(false);
     const ADMIN_EMAIL = "bilgi@akbayhukuk.com"; // Admin email'i burada tanımlıyoruz
 
     // Tek seferlik Firebase kurulumu
     useEffect(() => {
-        const firebaseConfigStr = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
-        if (!firebaseConfigStr) {
-            console.error("Firebase config not found!");
+        if (firebaseConfig.apiKey) {
+            const initializedApp = initializeApp(firebaseConfig);
+            setAuth(getAuth(initializedApp));
+            setDb(getFirestore(initializedApp));
+            setAppId(firebaseConfig.projectId);
+        } else {
+            console.error("Firebase config is missing! Check your Netlify environment variables.");
             setIsAuthReady(true); // Prevent getting stuck
-            return;
         }
-        const firebaseConfig = JSON.parse(firebaseConfigStr);
-        const initializedApp = initializeApp(firebaseConfig);
-        setAuth(getAuth(initializedApp));
-        setDb(getFirestore(initializedApp));
-        setAppId(typeof __app_id !== 'undefined' ? __app_id : 'default-app-id');
     }, []);
 
     // Auth ve Data kurulumu için ayrı bir effect
@@ -612,13 +610,9 @@ function App() {
             } else {
                 // No user, attempt to sign in anonymously
                 try {
-                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                       await signInWithCustomToken(auth, __initial_auth_token);
-                    } else {
-                       await signInAnonymously(auth);
-                    }
+                   await signInAnonymously(auth);
                 } catch (error) {
-                    console.error("Initial sign-in failed:", error);
+                    console.error("Anonymous sign-in failed:", error);
                     setIsAuthReady(true); // Prevent getting stuck on error
                 }
             }
