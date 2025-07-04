@@ -54,16 +54,21 @@ const Logo = () => (
 
 // Bildirim Bileşeni
 const Notification = ({ message, type, onDismiss }) => {
-    if (!message) return null;
+    useEffect(() => {
+        if (message) {
+            const timer = setTimeout(() => {
+                onDismiss();
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [message, onDismiss]);
+
+    if (!message) {
+        return null;
+    }
+
     const baseClasses = "fixed top-5 right-5 p-4 rounded-lg shadow-lg text-white transition-opacity duration-300";
     const typeClasses = type === 'success' ? 'bg-green-500' : 'bg-red-500';
-
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            onDismiss();
-        }, 3000);
-        return () => clearTimeout(timer);
-    }, [message, onDismiss]);
 
     return (
         <div className={`${baseClasses} ${typeClasses}`}>
@@ -515,6 +520,7 @@ const AdminDashboard = ({ auth, db, setPage, setNotification, appId }) => {
 
 // Helper function for initial data setup
 const setupInitialData = async (db, appId) => {
+    if (!appId || appId === 'default-app-id') return;
     try {
         const kurumsalRef = doc(db, `artifacts/${appId}/public/data/kurumsal`, "hakkimizda");
         const kurumsalSnap = await getDoc(kurumsalRef);
