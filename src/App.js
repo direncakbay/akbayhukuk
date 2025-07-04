@@ -38,7 +38,7 @@ const firebaseConfig = {
 
 // Logo Bileşeni
 const Logo = () => (
-    <a href="#" onClick={() => window.location.reload()}>
+    <a href="/" onClick={(e) => { e.preventDefault(); window.location.reload(); }}>
         <svg width="150" height="70" viewBox="0 0 150 70" xmlns="http://www.w3.org/2000/svg">
             <style>
                 {`
@@ -314,6 +314,7 @@ const IletisimSection = () => (
                 </div>
                 <div className="rounded-lg overflow-hidden h-full">
                     <iframe 
+                        title="Akbay Hukuk Bürosu Konumu"
                         src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3125.13063554167!2d27.18106191533633!3d38.43806307964418!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14b97d733951382b%3A0x3344b8f395b1e428!2sMegapol%20Tower!5e0!3m2!1str!2str!4v1678886452312!5m2!1str!2str" 
                         width="100%" 
                         height="100%" 
@@ -399,11 +400,11 @@ const AdminDashboard = ({ auth, db, setPage, setNotification, appId }) => {
     const [yayinlar, setYayinlar] = useState([]);
     const [newYayin, setNewYayin] = useState({ type: 'Makale', text: '' });
     
-    const kurumsalRef = doc(db, `artifacts/${appId}/public/data/kurumsal`, "hakkimizda");
-    const yayinlarCollectionRef = collection(db, `artifacts/${appId}/public/data/yayinlar`);
-
     // Verileri çek
     useEffect(() => {
+        const kurumsalRef = doc(db, `artifacts/${appId}/public/data/kurumsal`, "hakkimizda");
+        const yayinlarCollectionRef = collection(db, `artifacts/${appId}/public/data/yayinlar`);
+
         const getKurumsal = async () => {
             const docSnap = await getDoc(kurumsalRef);
             if (docSnap.exists()) setKurumsal(docSnap.data());
@@ -419,6 +420,7 @@ const AdminDashboard = ({ auth, db, setPage, setNotification, appId }) => {
     const handleKurumsalUpdate = async (e) => {
         e.preventDefault();
         try {
+            const kurumsalRef = doc(db, `artifacts/${appId}/public/data/kurumsal`, "hakkimizda");
             await updateDoc(kurumsalRef, kurumsal);
             setNotification({ type: 'success', message: 'Kurumsal bilgileri güncellendi.' });
         } catch (error) {
@@ -431,6 +433,7 @@ const AdminDashboard = ({ auth, db, setPage, setNotification, appId }) => {
         e.preventDefault();
         if (newYayin.text.trim() === '') return;
         try {
+            const yayinlarCollectionRef = collection(db, `artifacts/${appId}/public/data/yayinlar`);
             await addDoc(yayinlarCollectionRef, newYayin);
             setNewYayin({ type: 'Makale', text: '' });
             setNotification({ type: 'success', message: 'Yeni yayın eklendi.' });
@@ -442,7 +445,8 @@ const AdminDashboard = ({ auth, db, setPage, setNotification, appId }) => {
 
     const handleDeleteYayin = async (id) => {
         try {
-            await deleteDoc(doc(db, `artifacts/${appId}/public/data/yayinlar`, id));
+            const yayinDocRef = doc(db, `artifacts/${appId}/public/data/yayinlar`, id);
+            await deleteDoc(yayinDocRef);
             setNotification({ type: 'success', message: 'Yayın silindi.' });
         } catch (error) {
             console.error("Yayın silme hatası: ", error);
@@ -667,3 +671,4 @@ function App() {
 }
 
 export default App;
+"
