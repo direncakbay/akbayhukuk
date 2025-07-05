@@ -39,7 +39,7 @@ const firebaseConfig = {
 // Logo Bileşeni
 const Logo = () => (
     <a href="/" onClick={(e) => { e.preventDefault(); window.location.reload(); }} className="flex-shrink-0">
-        <svg className="h-14 w-auto" viewBox="0 0 150 70" xmlns="http://www.w3.org/2000/svg">
+        <svg className="h-16 w-auto" viewBox="0 0 150 70" xmlns="http://www.w3.org/2000/svg">
             <style>
                 {`
                     .logo-main-text { font-family: 'Times New Roman', Times, serif; font-size: 26px; fill: #374151; text-anchor: middle; }
@@ -95,7 +95,7 @@ const Header = ({ setPage }) => {
     return (
         <header className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-40">
             <div className="container mx-auto px-4 sm:px-6">
-                <div className="flex items-center justify-between h-20">
+                <div className="flex items-center justify-between h-24">
                     <Logo />
                     <nav className="hidden md:flex space-x-6 items-center">
                         <div className="relative group">
