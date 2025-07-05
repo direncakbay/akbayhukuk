@@ -466,4 +466,290 @@ const AdminDashboard = ({ auth, db, setPage, setNotification, appId }) => {
             await deleteDoc(doc(db, `artifacts/${appId}/public/data/${collectionName}`, docId));
             setNotification({ type: 'success', message: 'Başarıyla silindi.' });
         } catch (error) {
-            console.error("Silme hata
+            console.error("Silme hatası: ", error);
+            setNotification({ type: 'error', message: 'Silme işlemi başarısız oldu.' });
+        }
+    };
+    
+    const handleResetData = async () => {
+        if (window.confirm("Bu işlem, eksik olan tüm başlangıç verilerini (Hizmetler, Vizyon vb.) yeniden oluşturacaktır. Mevcut verileriniz etkilenmez. Devam etmek istiyor musunuz?")) {
+            try {
+                await setupInitialData(db, appId);
+                setNotification({ type: 'success', message: 'Başlangıç verileri başarıyla kontrol edildi ve eksikler eklendi.' });
+            } catch (e) {
+                setNotification({ type: 'error', message: 'Veri sıfırlama sırasında bir hata oluştu.' });
+            }
+        }
+    }
+
+    return (
+        <div className="bg-gray-100 min-h-screen p-4 sm:p-8">
+            <div className="container mx-auto">
+                <div className="flex justify-between items-center mb-8">
+                    <h1 className="text-3xl font-bold text-gray-800">Admin Paneli</h1>
+                    <div>
+                        <button onClick={handleResetData} className="bg-orange-500 text-white px-4 py-2 rounded-lg mr-4">Başlangıç Verilerini Sıfırla</button>
+                        <button onClick={() => setPage('home')} className="text-blue-600 hover:underline mr-4">Siteyi Görüntüle</button>
+                        <button onClick={() => signOut(auth)} className="bg-red-500 text-white px-4 py-2 rounded-lg">Çıkış Yap</button>
+                    </div>
+                </div>
+
+                {/* Hakkımızda */}
+                <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+                    <h2 className="text-2xl font-semibold mb-4">Hakkımızda Bölümü</h2>
+                    {kurumsal && (
+                        <form onSubmit={(e) => { e.preventDefault(); handleUpdate('kurumsal', kurumsal.id, { guldane_bio: kurumsal.guldane_bio, direnc_bio: kurumsal.direnc_bio }); }}>
+                            <textarea value={kurumsal.guldane_bio} onChange={(e) => setKurumsal({...kurumsal, guldane_bio: e.target.value})} className="w-full p-2 border rounded-lg h-24 mb-2"/>
+                            <textarea value={kurumsal.direnc_bio} onChange={(e) => setKurumsal({...kurumsal, direnc_bio: e.target.value})} className="w-full p-2 border rounded-lg h-24 mb-4"/>
+                            <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded-lg">Kaydet</button>
+                        </form>
+                    )}
+                </div>
+
+                {/* Vizyon */}
+                <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+                    <h2 className="text-2xl font-semibold mb-4">Vizyon Bölümü</h2>
+                    {vizyon.map(item => (
+                        <div key={item.id} className="mb-4 p-4 border rounded-lg">
+                            {editingVizyon?.id === item.id ? (
+                                <form onSubmit={(e) => { e.preventDefault(); handleUpdate('vizyon', editingVizyon.id, { title: editingVizyon.title, content: editingVizyon.content }); }}>
+                                    <input value={editingVizyon.title} onChange={e => setEditingVizyon({...editingVizyon, title: e.target.value})} className="w-full p-2 border rounded-lg mb-2"/>
+                                    <textarea value={editingVizyon.content} onChange={e => setEditingVizyon({...editingVizyon, content: e.target.value})} className="w-full p-2 border rounded-lg h-20 mb-2"/>
+                                    <button type="submit" className="bg-green-500 text-white px-4 py-1 rounded-lg mr-2">Kaydet</button>
+                                    <button onClick={() => setEditingVizyon(null)} className="bg-gray-500 text-white px-4 py-1 rounded-lg">İptal</button>
+                                </form>
+                            ) : (
+                                <div className="flex justify-between items-center">
+                                    <div>
+                                        <h4 className="font-bold">{item.title}</h4>
+                                        <p>{item.content}</p>
+                                    </div>
+                                    <button onClick={() => setEditingVizyon(item)} className="bg-yellow-500 text-white px-4 py-1 rounded-lg">Düzenle</button>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+
+                {/* Hizmetler */}
+                <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+                    <h2 className="text-2xl font-semibold mb-4">Hizmetler Bölümü</h2>
+                     {hizmetler.map(item => (
+                        <div key={item.id} className="mb-4 p-4 border rounded-lg">
+                            {editingHizmet?.id === item.id ? (
+                                <form onSubmit={(e) => { e.preventDefault(); handleUpdate('hizmetler', editingHizmet.id, { title: editingHizmet.title, content: editingHizmet.content }); }}>
+                                    <input value={editingHizmet.title} onChange={e => setEditingHizmet({...editingHizmet, title: e.target.value})} className="w-full p-2 border rounded-lg mb-2"/>
+                                    <textarea value={editingHizmet.content} onChange={e => setEditingHizmet({...editingHizmet, content: e.target.value})} className="w-full p-2 border rounded-lg h-20 mb-2"/>
+                                    <button type="submit" className="bg-green-500 text-white px-4 py-1 rounded-lg mr-2">Kaydet</button>
+                                    <button onClick={() => setEditingHizmet(null)} className="bg-gray-500 text-white px-4 py-1 rounded-lg">İptal</button>
+                                </form>
+                            ) : (
+                                <div className="flex justify-between items-center">
+                                    <div>
+                                        <h4 className="font-bold">{item.title}</h4>
+                                        <p>{item.content}</p>
+                                    </div>
+                                    <button onClick={() => setEditingHizmet(item)} className="bg-yellow-500 text-white px-4 py-1 rounded-lg">Düzenle</button>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+
+                {/* Yayınlar Yönetimi */}
+                <div className="bg-white p-6 rounded-lg shadow-md">
+                    <h2 className="text-2xl font-semibold mb-4">Yayınları Yönet</h2>
+                    <form onSubmit={handleNewYayin} className="mb-6 p-4 bg-gray-50 rounded-lg">
+                         <h3 className="text-xl font-semibold mb-2">Yeni Yayın Ekle</h3>
+                         <div className="grid sm:grid-cols-1 md:grid-cols-3 gap-4">
+                             <select value={newYayin.type} onChange={e => setNewYayin({...newYayin, type: e.target.value})} className="p-2 border rounded-lg md:col-span-1">
+                                 <option>Makale</option>
+                                 <option>Kitap</option>
+                                 <option>Kitap İçi Bölüm</option>
+                                 <option>Bildiri</option>
+                                 <option>Diğer</option>
+                             </select>
+                             <input 
+                                 type="text" 
+                                 placeholder="Yayın metnini girin..." 
+                                 value={newYayin.text}
+                                 onChange={e => setNewYayin({...newYayin, text: e.target.value})}
+                                 className="w-full p-2 border rounded-lg md:col-span-2"
+                            />
+                         </div>
+                         <button type="submit" className="mt-4 bg-green-500 text-white px-6 py-2 rounded-lg">Ekle</button>
+                    </form>
+                    
+                    <h3 className="text-xl font-semibold mb-2">Mevcut Yayınlar</h3>
+                    <div className="space-y-2">
+                        {yayinlar.map(y => (
+                            <div key={y.id} className="flex justify-between items-center p-3 bg-gray-100 rounded-lg">
+                                <div>
+                                    <span className="font-bold text-sm mr-2 bg-blue-200 text-blue-800 px-2 py-1 rounded-full">{y.type}</span>
+                                    <span>{y.text}</span>
+                                </div>
+                                <button onClick={() => handleDelete('yayinlar', y.id)} className="text-red-500 hover:text-red-700">Sil</button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+
+// --- Ana Uygulama (App) ---
+
+// Helper function for initial data setup
+const setupInitialData = async (db, appId) => {
+    if (!appId || appId === 'default-app-id') return;
+    try {
+        const collections = {
+            vizyon: [
+                { title: 'Yeni Nesil Hizmet', content: 'Mekândan bağımsız etkileşimli toplantılar ve belge paylaşımı sağlayan online altyapımızla ulaşılabilir ve düşük maliyetli hizmet sunuyoruz.' },
+                { title: 'Güçlü İş Birlikleri', content: 'Alanında uzman akademisyenler ve sektör danışmanları ile müvekkillerimizin gereksinimlerine uygun, çözüm odaklı bir anlayışı benimsiyoruz.' },
+                { title: 'Şeffaflık', content: 'Tüm hizmetlerimizi şeffaflık ve hesap verebilirlik ilkeleri üzerine inşa ediyor, süreç hakkında düzenli bilgilendirmeler yapıyoruz.' },
+                { title: 'Etkili Yardım', content: 'Sadece uyuşmazlık anında değil, öncesinde de olası sorunları değerlendirerek hem uyuşmazlık öncesi hem de sonrası için yanınızdayız.' },
+                { title: 'Kuram, Kural ve Kurum', content: 'Sorunlarınıza anlık çözümler yerine, hukuku kuramsal düzeyde değerlendirerek kalıcı ve sağlam çözümler öneriyoruz.' }
+            ],
+            hizmetler: [
+                { title: "Dava ve İcra Takipleri", content: "Kamu hukuku veya özel hukuktan kaynaklanan her türlü hukuk sürecinin başlatılması, yürütülmesi ve takibi." },
+                { title: "Hukukî Danışmanlık", content: "Gerçek ve tüzel kişilerin uyuşmazlık öncesi ve sonrası süreçlerinin değerlendirilmesi, sorularının cevaplandırılması, değişik olasılıklar dikkate alınarak hukukî tavsiyelerde bulunulması, raporlar ve sözleşmeler hazırlanması." },
+                { title: "Meslek Profesyonelleri İçin Hukukî Süreç Yönetimi ve Dava Koçluğu", content: "Çözümü uzmanlık gerektiren konularda özellikle avukatlara yönelik sağlanan hizmetlerdir. Bu çerçevede, uzmanlardan oluşan çözüm ortaklarımızca değerlendirmeler yapılması, sanal veya fizikî toplantılar düzenlenmesi, hukukî süreç yönetimi, dava koçluğu, uzmanlardan dava veya uyuşmazlıklara ilişkin mütalaalar ve raporlar alınması, dava stratejilerinin belirlenmesi gibi ihtiyaç odaklı kapsamlı çözümler sunulmakta ve organizasyonlar yapılabilmektedir." },
+                { title: "Arabuluculuk", content: "Tarafların üzerinde serbestçe tasarruf edebilecekleri iş veya işlemlerden doğan özel hukuk uyuşmazlıklarının çözümlenmesinde, alternatif bir çözüm yolu olarak arabuluculuk hizmeti sunulmaktadır. Özellikle ticari uyuşmazlıkların mahkeme önüne gitmeden çözümlenebilmesi için profesyonel müzakere teknikleri uygulanır." },
+                { title: "Hukukî Eğitim Faaliyetleri", content: "Çözüm ortaklarımız ve uzmanlarımızın da katkısıyla danışanlarımız veya müvekkillerimize her türlü hukukî eğitim verilebilmektedir. Bu eğitimler, spesifik bilgi gerektiren alanlar için meslek profesyonellerine yönelik olabileceği gibi şirketlerin ilgili departman personellerine yönelik de olabilmektedir." }
+            ],
+            yayinlar: [
+                { type: 'Kitap', text: "Akbay, Direnç: Türk Ticaret Kanunu Tasarısı'na Göre Limited Ortaklık Genel Kurulunun Toplanma ve Karar Alma Esasları, İstanbul, 2010." },
+                { type: 'Makale', text: "Akbay, Direnç: Anonim Ortaklıklarda Özel Denetimin Konusu, D.E.Ü. Hukuk Fakültesi Dergisi, (21),2, 2019, s. 629-660." },
+            ]
+        };
+
+        for (const [colName, data] of Object.entries(collections)) {
+            const colRef = collection(db, `artifacts/${appId}/public/data/${colName}`);
+            const snapshot = await getDocs(colRef);
+            if (snapshot.empty) {
+                console.log(`Populating empty collection: ${colName}`);
+                for (const item of data) {
+                    await addDoc(colRef, item);
+                }
+            }
+        }
+
+        const kurumsalRef = doc(db, `artifacts/${appId}/public/data/kurumsal`, "hakkimizda");
+        const kurumsalSnap = await getDoc(kurumsalRef);
+        if (!kurumsalSnap.exists()) {
+            await setDoc(kurumsalRef, {
+                guldane_bio: "1988 Ankara doğumludur. Dokuz Eylül Üniversitesi Hukuk Fakültesi'nden 2012 yılında mezun olmuştur. Lisans eğitimi süresince, İzmir ve Manisa'da çeşitli bürolarda çalışmıştır. Mezuniyet sonrası avukatlık stajını, 2013 yılında Manisa Barosu'nda tamamlamıştır. 2014 yılına kadar bağlı avukat olarak çalışmış, 2014 yılında Manisa'da Dörtbudak Hukuk Bürosu'nu kurmuştur. 2019 yılı sonunda İzmir'e taşınması sebebiyle, avukatlık faaliyetini İzmir Barosu'na bağlı olarak sürdürmeye başlamıştır.",
+                direnc_bio: "2005 yılında, Dokuz Eylül Üniversitesi Hukuk Fakültesi'nden birincilikle mezun olmuştur. Ticaret Hukuku Anabilim Dalı'nda araştırma görevlisi olarak çalışmaya başlamıştır. 2017 yılında özel hukuk doktoru unvanını almıştır. Almanya Konstanz Üniversitesi ve Mannheim Üniversitesi'nde araştırmalarda bulunmuştur. Ekim 2021'den itibaren İzmir Ekonomi Üniversitesi Hukuk Fakültesi, Ticaret Hukuku Anabilim Dalı'nda Dr. Öğr. Üyesi olarak görev yapmaktadır. 2020'den beri Arabulucu olarak da faaliyet göstermektedir."
+            });
+        }
+
+    } catch (error) {
+        console.error("Initial data setup failed:", error);
+    }
+};
+
+
+function App() {
+    const [page, setPage] = useState('home'); // 'home' or 'admin'
+    const [user, setUser] = useState(null);
+    const [notification, setNotification] = useState({ type: '', message: '' });
+    
+    // Firebase state
+    const [auth, setAuth] = useState(null);
+    const [db, setDb] = useState(null);
+    const [appId, setAppId] = useState(null);
+    const [isAuthReady, setIsAuthReady] = useState(false);
+    const ADMIN_EMAIL = "bilgi@akbayhukuk.com"; // Admin email'i burada tanımlıyoruz
+
+    // Tek seferlik Firebase kurulumu
+    useEffect(() => {
+        if (firebaseConfig.apiKey) {
+            const initializedApp = initializeApp(firebaseConfig);
+            setAuth(getAuth(initializedApp));
+            setDb(getFirestore(initializedApp));
+            setAppId(firebaseConfig.projectId);
+        } else {
+            console.error("Firebase config is missing! Check your Netlify environment variables.");
+            setIsAuthReady(true); // Prevent getting stuck
+        }
+    }, []);
+
+    // Auth ve Data kurulumu için ayrı bir effect
+    useEffect(() => {
+        if (!auth || !db || !appId) return; // Wait for initialization
+
+        const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+            if (currentUser) {
+                // User is authenticated
+                if (currentUser.email === ADMIN_EMAIL) {
+                    setUser(currentUser);
+                } else {
+                    setUser(null);
+                }
+                
+                await setupInitialData(db, appId);
+                
+                setIsAuthReady(true);
+            } else {
+                // No user, attempt to sign in anonymously
+                try {
+                   await signInAnonymously(auth);
+                } catch (error) {
+                    console.error("Anonymous sign-in failed:", error);
+                    setIsAuthReady(true); // Prevent getting stuck on error
+                }
+            }
+        });
+
+        return () => unsubscribe(); // Cleanup listener on unmount
+    }, [auth, db, appId]);
+
+
+    const handleDismissNotification = () => {
+        setNotification({ type: '', message: '' });
+    };
+
+    if (!isAuthReady) {
+        return <div className="flex justify-center items-center h-screen">Site Yükleniyor...</div>;
+    }
+
+    if (page === 'admin') {
+        return (
+            <>
+                <Notification {...notification} onDismiss={handleDismissNotification} />
+                {user ? (
+                    <AdminDashboard auth={auth} db={db} setPage={setPage} setNotification={setNotification} appId={appId} />
+                ) : (
+                    <AdminLogin auth={auth} setNotification={setNotification} ADMIN_EMAIL={ADMIN_EMAIL} />
+                )}
+            </>
+        );
+    }
+
+    return (
+        <div className="bg-gray-50 text-gray-800">
+            <style>
+                {`
+                .hero-section {
+                    background: linear-gradient(rgba(17, 24, 39, 0.8), rgba(17, 24, 39, 0.8)), url('https://placehold.co/1920x1080/64748b/ffffff?text=Hukuk+Bürosu') no-repeat center center;
+                    background-size: cover;
+                }
+                `}
+            </style>
+            <Header setPage={setPage} />
+            <main>
+                <Hero />
+                <KurumsalSection db={db} appId={appId} isAuthReady={isAuthReady} />
+                <HizmetlerSection db={db} appId={appId} isAuthReady={isAuthReady} />
+                <YayinlarSection db={db} appId={appId} isAuthReady={isAuthReady} />
+                <IletisimSection />
+            </main>
+            <Footer />
+        </div>
+    );
+}
+
+export default App;
