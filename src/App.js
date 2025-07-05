@@ -38,8 +38,8 @@ const firebaseConfig = {
 
 // Logo Bileşeni
 const Logo = () => (
-    <a href="/" onClick={(e) => { e.preventDefault(); window.location.reload(); }}>
-        <svg width="150" height="70" viewBox="0 0 150 70" xmlns="http://www.w3.org/2000/svg">
+    <a href="/" onClick={(e) => { e.preventDefault(); window.location.reload(); }} className="h-14 sm:h-16 flex items-center">
+        <svg className="h-full w-auto" viewBox="0 0 150 70" xmlns="http://www.w3.org/2000/svg">
             <style>
                 {`
                     .logo-main-text { font-family: 'Times New Roman', Times, serif; font-size: 26px; fill: #374151; text-anchor: middle; }
@@ -94,13 +94,22 @@ const Header = ({ setPage }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     return (
         <header className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-40">
-            <div className="container mx-auto px-6 py-2">
+            <div className="container mx-auto px-4 sm:px-6 py-2">
                 <div className="flex items-center justify-between">
                     <Logo />
-                    <nav className="hidden md:flex space-x-8 items-center">
-                        <a href="#kurumsal" className="text-gray-600 hover:text-blue-600 transition duration-300">Kurumsal</a>
-                        <a href="#hizmetler" className="text-gray-600 hover:text-blue-600 transition duration-300">Hizmetler</a>
-                        <a href="#yayinlar" className="text-gray-600 hover:text-blue-600 transition duration-300">Yayınlar</a>
+                    <nav className="hidden md:flex space-x-6 items-center">
+                        <div className="relative group">
+                            <button className="text-gray-600 hover:text-blue-600 transition duration-300 py-2 px-2 rounded-md inline-flex items-center">
+                                <span>Kurumsal</span>
+                                <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                            </button>
+                            <div className="absolute hidden group-hover:block bg-white shadow-lg rounded-md mt-1 w-48 z-50">
+                                <a href="#vizyon" className="block px-4 py-2 text-gray-600 hover:bg-gray-100">Vizyonumuz</a>
+                                <a href="#hakkimizda" className="block px-4 py-2 text-gray-600 hover:bg-gray-100">Hakkımızda</a>
+                            </div>
+                        </div>
+                        <a href="#hizmetler" className="text-gray-600 hover:text-blue-600 transition duration-300 py-2 px-2">Hizmetler</a>
+                        <a href="#yayinlar" className="text-gray-600 hover:text-blue-600 transition duration-300 py-2 px-2">Yayınlar</a>
                         <a href="#iletisim" className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300">İletişim</a>
                          <button onClick={() => setPage('admin')} className="text-sm text-gray-500 hover:text-blue-600">Admin</button>
                     </nav>
@@ -111,7 +120,8 @@ const Header = ({ setPage }) => {
             </div>
             {isMenuOpen && (
                 <div id="mobile-menu" className="md:hidden">
-                    <a href="#kurumsal" className="block px-6 py-3 text-gray-600 hover:bg-gray-100">Kurumsal</a>
+                    <a href="#vizyon" className="block px-6 py-3 text-gray-600 hover:bg-gray-100">Vizyonumuz</a>
+                    <a href="#hakkimizda" className="block px-6 py-3 text-gray-600 hover:bg-gray-100">Hakkımızda</a>
                     <a href="#hizmetler" className="block px-6 py-3 text-gray-600 hover:bg-gray-100">Hizmetler</a>
                     <a href="#yayinlar" className="block px-6 py-3 text-gray-600 hover:bg-gray-100">Yayınlar</a>
                     <a href="#iletisim" className="block px-6 py-3 text-gray-600 hover:bg-gray-100">İletişim</a>
@@ -160,15 +170,11 @@ const KurumsalSection = ({ db, appId, isAuthReady }) => {
     }, [db, appId, isAuthReady]);
 
     return (
-         <section id="kurumsal" className="py-20 bg-white">
-            <div className="container mx-auto px-6">
-                <div className="text-center mb-16">
-                    <h2 className="text-4xl md:text-5xl font-bold text-gray-900" style={{fontFamily: "'Playfair Display', serif"}}>Kurumsal</h2>
-                    <p className="text-gray-600 mt-3 max-w-2xl mx-auto">Değerlerimiz, vizyonumuz ve arkasındaki deneyimli ekibimiz.</p>
-                </div>
-                <div className="mb-20">
+        <>
+            <section id="vizyon" className="pt-20 bg-white">
+                <div className="container mx-auto px-6">
                     <div className="text-center mb-12">
-                        <h3 className="text-3xl md:text-4xl font-bold text-gray-800">Vizyonumuz</h3>
+                        <h2 className="text-4xl md:text-5xl font-bold text-gray-900" style={{fontFamily: "'Playfair Display', serif"}}>Vizyonumuz</h2>
                     </div>
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {vizyonData.length > 0 ? vizyonData.map(item => (
@@ -179,10 +185,12 @@ const KurumsalSection = ({ db, appId, isAuthReady }) => {
                         )) : <p>Vizyonumuz yükleniyor...</p>}
                     </div>
                 </div>
+            </section>
+            <section id="hakkimizda" className="py-20 bg-white">
                 {kurumsalData && (
-                    <div>
+                    <div className="container mx-auto px-6">
                         <div className="text-center mb-12">
-                            <h3 className="text-3xl md:text-4xl font-bold text-gray-800">Hakkımızda</h3>
+                            <h2 className="text-4xl md:text-5xl font-bold text-gray-900" style={{fontFamily: "'Playfair Display', serif"}}>Hakkımızda</h2>
                         </div>
                         <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-12 items-start">
                             <div className="bg-gray-100 p-8 rounded-lg shadow-md">
@@ -196,8 +204,8 @@ const KurumsalSection = ({ db, appId, isAuthReady }) => {
                         </div>
                     </div>
                 )}
-            </div>
-        </section>
+            </section>
+        </>
     );
 };
 
@@ -462,7 +470,7 @@ const AdminDashboard = ({ auth, db, setPage, setNotification, appId }) => {
             setNotification({ type: 'error', message: 'Silme işlemi başarısız oldu.' });
         }
     };
-
+    
     const handleResetData = async () => {
         if (window.confirm("Bu işlem, eksik olan tüm başlangıç verilerini (Hizmetler, Vizyon vb.) yeniden oluşturacaktır. Mevcut verileriniz etkilenmez. Devam etmek istiyor musunuz?")) {
             try {
@@ -622,6 +630,7 @@ const setupInitialData = async (db, appId) => {
             const colRef = collection(db, `artifacts/${appId}/public/data/${colName}`);
             const snapshot = await getDocs(colRef);
             if (snapshot.empty) {
+                console.log(`Populating empty collection: ${colName}`);
                 for (const item of data) {
                     await addDoc(colRef, item);
                 }
@@ -653,7 +662,6 @@ function App() {
     const [db, setDb] = useState(null);
     const [appId, setAppId] = useState(null);
     const [isAuthReady, setIsAuthReady] = useState(false);
-    const dataSetupComplete = useRef(false);
     const ADMIN_EMAIL = "bilgi@akbayhukuk.com"; // Admin email'i burada tanımlıyoruz
 
     // Tek seferlik Firebase kurulumu
@@ -680,12 +688,6 @@ function App() {
                     setUser(currentUser);
                 } else {
                     setUser(null);
-                }
-
-                // Setup initial data only once
-                if (!dataSetupComplete.current) {
-                    await setupInitialData(db, appId);
-                    dataSetupComplete.current = true;
                 }
                 
                 setIsAuthReady(true);
