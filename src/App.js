@@ -463,12 +463,24 @@ const AdminDashboard = ({ auth, db, setPage, setNotification, appId }) => {
         }
     };
 
+    const handleResetData = async () => {
+        if (window.confirm("Bu işlem, eksik olan tüm başlangıç verilerini (Hizmetler, Vizyon vb.) yeniden oluşturacaktır. Mevcut verileriniz etkilenmez. Devam etmek istiyor musunuz?")) {
+            try {
+                await setupInitialData(db, appId);
+                setNotification({ type: 'success', message: 'Başlangıç verileri başarıyla kontrol edildi ve eksikler eklendi.' });
+            } catch (e) {
+                setNotification({ type: 'error', message: 'Veri sıfırlama sırasında bir hata oluştu.' });
+            }
+        }
+    }
+
     return (
         <div className="bg-gray-100 min-h-screen p-4 sm:p-8">
             <div className="container mx-auto">
                 <div className="flex justify-between items-center mb-8">
                     <h1 className="text-3xl font-bold text-gray-800">Admin Paneli</h1>
                     <div>
+                        <button onClick={handleResetData} className="bg-orange-500 text-white px-4 py-2 rounded-lg mr-4">Başlangıç Verilerini Sıfırla</button>
                         <button onClick={() => setPage('home')} className="text-blue-600 hover:underline mr-4">Siteyi Görüntüle</button>
                         <button onClick={() => signOut(auth)} className="bg-red-500 text-white px-4 py-2 rounded-lg">Çıkış Yap</button>
                     </div>
