@@ -38,8 +38,8 @@ const firebaseConfig = {
 
 // Logo Bileşeni
 const Logo = () => (
-    <a href="/" onClick={(e) => { e.preventDefault(); window.location.reload(); }} className="flex-shrink-0">
-        <svg className="h-16 w-auto" viewBox="0 0 150 70" xmlns="http://www.w3.org/2000/svg">
+    <a href="/" onClick={(e) => { e.preventDefault(); window.location.reload(); }} className="w-40 sm:w-48 flex-shrink-0">
+        <svg className="w-full h-auto" viewBox="0 0 150 70" xmlns="http://www.w3.org/2000/svg">
             <style>
                 {`
                     .logo-main-text { font-family: 'Times New Roman', Times, serif; font-size: 26px; fill: #374151; text-anchor: middle; }
