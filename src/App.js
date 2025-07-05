@@ -38,27 +38,8 @@ const firebaseConfig = {
 
 // Logo Bileşeni
 const Logo = () => (
-    <a href="/" onClick={(e) => { e.preventDefault(); window.location.reload(); }} className="w-40 sm:w-48 flex-shrink-0">
-        <svg className="w-full h-auto" viewBox="0 0 150 70" xmlns="http://www.w3.org/2000/svg">
-            <style>
-                {`
-                    .logo-main-text { font-family: 'Times New Roman', Times, serif; font-size: 26px; fill: #374151; text-anchor: middle; }
-                    .logo-sub-text { font-family: 'Inter', sans-serif; font-size: 8px; fill: #4b5563; letter-spacing: 1.5px; text-anchor: middle; }
-                    .logo-icon-bg { fill: #4b5563; }
-                    .logo-icon-frame { stroke: #374151; stroke-width: 1.5; fill: none;}
-                    .logo-icon-text { font-family: 'Times New Roman', Times, serif; font-size: 12px; fill: #ffffff; text-anchor: middle; dominant-baseline: central; }
-                `}
-            </style>
-            <g>
-                <g transform="translate(75, 16)">
-                    <path className="logo-icon-bg" d="M-13.856, -8 L0, -16 L13.856, -8 L13.856, 8 L0, 16 L-13.856, 8 Z" />
-                    <path className="logo-icon-frame" d="M-15.856, -9 L0, -18 L15.856, -9 L15.856, 9 L0, 18 L-15.856, 9 Z" />
-                    <text className="logo-icon-text" x="0" y="1">G&amp;D</text>
-                </g>
-                <text className="logo-main-text" x="75" y="50">Akbay Hukuk</text>
-                <text className="logo-sub-text" x="75" y="62">AVUKATLIK | DANIŞMANLIK</text>
-            </g>
-        </svg>
+    <a href="/" onClick={(e) => { e.preventDefault(); window.location.reload(); }} className="w-40 sm:w-48 max-w-full flex-shrink-0">
+        <img src="/logo.png" alt="Akbay Hukuk Logosu" className="w-full h-auto" />
     </a>
 );
 
