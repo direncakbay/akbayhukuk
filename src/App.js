@@ -662,6 +662,7 @@ function App() {
     const [db, setDb] = useState(null);
     const [appId, setAppId] = useState(null);
     const [isAuthReady, setIsAuthReady] = useState(false);
+    const dataSetupComplete = useRef(false);
     const ADMIN_EMAIL = "bilgi@akbayhukuk.com"; // Admin email'i burada tanımlıyoruz
 
     // Tek seferlik Firebase kurulumu
@@ -688,6 +689,12 @@ function App() {
                     setUser(currentUser);
                 } else {
                     setUser(null);
+                }
+                
+                // Setup initial data only once per session
+                if (!dataSetupComplete.current) {
+                    await setupInitialData(db, appId);
+                    dataSetupComplete.current = true;
                 }
                 
                 setIsAuthReady(true);
@@ -751,4 +758,3 @@ function App() {
 }
 
 export default App;
-"
