@@ -321,7 +321,7 @@ const IletisimSection = () => (
                 <div className="rounded-lg overflow-hidden h-full">
                     <iframe 
                         title="Akbay Hukuk Bürosu Konumu"
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3125.13063554167!2d27.18106191533633!3d38.43806307964418!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14b97d733951382b%3A0x3344b8f395b1e428!2sMegapol%20Tower!5e0!3m2!1str!2str!4v1678886452312!5m2!1str!2str" 
+                        src="https://maps.google.com/maps?q=Megapol%20Tower%2C%20Adalet%20Mahallesi%2C%20Bayrakl%C4%B1%2C%20%C4%B0zmir&t=&z=17&ie=UTF8&iwloc=&output=embed"
                         width="100%" 
                         height="100%" 
                         style={{border:0, minHeight: '300px'}} 
@@ -662,7 +662,6 @@ function App() {
     const [db, setDb] = useState(null);
     const [appId, setAppId] = useState(null);
     const [isAuthReady, setIsAuthReady] = useState(false);
-    const dataSetupComplete = useRef(false);
     const ADMIN_EMAIL = "bilgi@akbayhukuk.com"; // Admin email'i burada tanımlıyoruz
 
     // Tek seferlik Firebase kurulumu
@@ -691,11 +690,7 @@ function App() {
                     setUser(null);
                 }
                 
-                // Setup initial data only once per session
-                if (!dataSetupComplete.current) {
-                    await setupInitialData(db, appId);
-                    dataSetupComplete.current = true;
-                }
+                await setupInitialData(db, appId);
                 
                 setIsAuthReady(true);
             } else {
