@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 
 // Firebase Imports
 import { initializeApp } from "firebase/app";
@@ -38,7 +38,7 @@ const firebaseConfig = {
 
 // Logo Bileşeni
 const Logo = () => (
-    <a href="/" onClick={(e) => { e.preventDefault(); window.location.reload(); }} className="h-14 sm:h-16 flex items-center">
+    <a href="/" onClick={(e) => { e.preventDefault(); window.location.reload(); }} className="h-16 flex items-center py-1">
         <svg className="h-full w-auto" viewBox="0 0 150 70" xmlns="http://www.w3.org/2000/svg">
             <style>
                 {`
@@ -94,8 +94,8 @@ const Header = ({ setPage }) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     return (
         <header className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-40">
-            <div className="container mx-auto px-4 sm:px-6 py-2">
-                <div className="flex items-center justify-between">
+            <div className="container mx-auto px-4 sm:px-6">
+                <div className="flex items-center justify-between h-20">
                     <Logo />
                     <nav className="hidden md:flex space-x-6 items-center">
                         <div className="relative group">
