@@ -38,7 +38,7 @@ const firebaseConfig = {
 
 // Logo Bileşeni
 const Logo = () => (
-    <a href="/" onClick={(e) => { e.preventDefault(); window.location.reload(); }} className="h-full py-2">
+    <a href="/" onClick={(e) => { e.preventDefault(); window.location.reload(); }} className="h-full flex items-center py-2">
         <svg className="h-full w-auto" viewBox="0 0 150 70" xmlns="http://www.w3.org/2000/svg">
             <style>
                 {`
