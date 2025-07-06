@@ -174,13 +174,25 @@ const KurumsalSection = ({ db, appId, isAuthReady }) => {
                             <h2 className="text-4xl md:text-5xl font-bold text-gray-900" style={{fontFamily: "'Playfair Display', serif"}}>Hakkımızda</h2>
                         </div>
                         <div className="grid md:grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-                            <div className="bg-gray-100 p-8 rounded-lg shadow-md">
+                            <div className="bg-gray-100 p-8 rounded-lg text-center">
+                                <img 
+                                    src="/guldane.png" 
+                                    alt="Av. Güldane Dörtbudak Akbay" 
+                                    className="w-32 h-32 rounded-full mx-auto mb-6 object-cover border-4 border-white shadow-lg"
+                                    onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/128x128/cccccc/ffffff?text=G.D.A'; }}
+                                />
                                 <h4 className="text-2xl font-bold mb-4">Av. Güldane Dörtbudak Akbay</h4>
-                                <p className="text-gray-600 leading-relaxed whitespace-pre-line">{kurumsalData.guldane_bio}</p>
+                                <p className="text-gray-600 leading-relaxed whitespace-pre-line text-left">{kurumsalData.guldane_bio}</p>
                             </div>
-                            <div className="bg-gray-100 p-8 rounded-lg shadow-md">
+                            <div className="bg-gray-100 p-8 rounded-lg text-center">
+                                <img 
+                                    src="/direnc.png" 
+                                    alt="Arb. Dr. Direnç Akbay" 
+                                    className="w-32 h-32 rounded-full mx-auto mb-6 object-cover border-4 border-white shadow-lg"
+                                    onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/128x128/cccccc/ffffff?text=D.A'; }}
+                                />
                                 <h4 className="text-2xl font-bold mb-4">Arb. Dr. Direnç Akbay</h4>
-                                <p className="text-gray-600 leading-relaxed whitespace-pre-line">{kurumsalData.direnc_bio}</p>
+                                <p className="text-gray-600 leading-relaxed whitespace-pre-line text-left">{kurumsalData.direnc_bio}</p>
                             </div>
                         </div>
                     </div>
@@ -281,38 +293,58 @@ const YayinlarSection = ({ db, appId, isAuthReady }) => {
     );
 };
 
-const IletisimSection = () => (
-    <section id="iletisim" className="py-20 bg-gray-900 text-white">
-        <div className="container mx-auto px-6">
-            <div className="text-center mb-12">
-                <h2 className="text-3xl md:text-4xl font-bold" style={{fontFamily: "'Playfair Display', serif"}}>İletişim</h2>
-            </div>
-            <div className="grid md:grid-cols-2 gap-12">
-                <div className="bg-gray-800 p-8 rounded-lg">
-                    <h3 className="text-2xl font-semibold mb-4">Akbay Hukuk</h3>
-                    <p className="flex items-start mb-4">
-                        <svg className="w-6 h-6 mr-3 mt-1 text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                        <span>Adalet Mh., Altınyol Cd., No: 41/101, Megapol Tower, K: 10, D: 1012 Bayraklı/İZMİR</span>
-                    </p>
-                    <p className="flex items-center">
-                        <svg className="w-6 h-6 mr-3 text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11 11 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-                        <span>0 (530) 772 47 74</span>
-                    </p>
+const IletisimSection = ({ db, appId, isAuthReady }) => {
+    const [iletisimData, setIletisimData] = useState(null);
+
+    useEffect(() => {
+        if (!db || !appId || !isAuthReady) return;
+        const iletisimRef = doc(db, `artifacts/${appId}/public/data/iletisim`, "info");
+        const unsubscribe = onSnapshot(iletisimRef, (doc) => {
+            setIletisimData(doc.exists() ? doc.data() : null);
+        });
+        return () => unsubscribe();
+    }, [db, appId, isAuthReady]);
+
+    return (
+        <section id="iletisim" className="py-20 bg-gray-900 text-white">
+            <div className="container mx-auto px-6">
+                <div className="text-center mb-12">
+                    <h2 className="text-3xl md:text-4xl font-bold" style={{fontFamily: "'Playfair Display', serif"}}>İletişim</h2>
                 </div>
-                <div className="rounded-lg overflow-hidden h-full">
-                    <iframe 
-                        title="Akbay Hukuk Bürosu Konumu"
-                        src="https://maps.google.com/maps?q=Megapol%20Tower%2C%20Adalet%20Mahallesi%2C%20Bayrakl%C4%B1%2C%20%C4%B0zmir&t=&z=17&ie=UTF8&iwloc=&output=embed"
-                        width="100%" 
-                        height="100%" 
-                        style={{border:0, minHeight: '300px'}} 
-                        allowFullScreen="" 
-                        loading="lazy" 
-                    />
+                <div className="grid md:grid-cols-2 gap-12">
+                    <div className="bg-gray-800 p-8 rounded-lg">
+                        <h3 className="text-2xl font-semibold mb-4">Akbay Hukuk</h3>
+                        {iletisimData ? (
+                            <div className="space-y-4 text-gray-300">
+                                <p className="flex items-start">
+                                    <svg className="w-6 h-6 mr-3 mt-1 text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a2 2 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                    <span>{iletisimData.address}</span>
+                                </p>
+                                <p className="flex items-center">
+                                    <svg className="w-6 h-6 mr-3 text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11 11 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                                    <span>{iletisimData.phone}</span>
+                                </p>
+                                <p className="flex items-center">
+                                    <svg className="w-6 h-6 mr-3 text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                                    <a href={`mailto:${iletisimData.email}`} className="hover:underline">{iletisimData.email}</a>
+                                </p>
+                            </div>
+                        ) : <p>İletişim bilgileri yükleniyor...</p>}
+                    </div>
+                    <div className="rounded-lg overflow-hidden h-full">
+                        <iframe 
+                            title="Akbay Hukuk Bürosu Konumu"
+                            src="https://maps.google.com/maps?q=Megapol%20Tower%2C%20Adalet%20Mahallesi%2C%20Bayrakl%C4%B1%2C%20%C4%B0zmir&t=&z=17&ie=UTF8&iwloc=&output=embed"
+                            width="100%" 
+                            height="100%" 
+                            style={{border:0, minHeight: '300px'}} 
+                            allowFullScreen="" 
+                            loading="lazy" 
+                        />
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 );
 
 const Footer = () => (
@@ -387,6 +419,7 @@ const AdminDashboard = ({ auth, db, setPage, setNotification, appId }) => {
     const [vizyon, setVizyon] = useState([]);
     const [hizmetler, setHizmetler] = useState([]);
     const [yayinlar, setYayinlar] = useState([]);
+    const [iletisim, setIletisim] = useState(null);
     
     const [editingVizyon, setEditingVizyon] = useState(null);
     const [editingHizmet, setEditingHizmet] = useState(null);
@@ -407,12 +440,16 @@ const AdminDashboard = ({ auth, db, setPage, setNotification, appId }) => {
         const unsubYayinlar = onSnapshot(collection(db, `artifacts/${appId}/public/data/yayinlar`), (snapshot) => {
             setYayinlar(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
         });
+        const unsubIletisim = onSnapshot(doc(db, `artifacts/${appId}/public/data/iletisim`, "info"), (doc) => {
+            setIletisim(doc.exists() ? { id: doc.id, ...doc.data() } : null);
+        });
 
         return () => {
             unsubKurumsal();
             unsubVizyon();
             unsubHizmetler();
             unsubYayinlar();
+            unsubIletisim();
         };
     }, [db, appId]);
 
@@ -473,6 +510,28 @@ const AdminDashboard = ({ auth, db, setPage, setNotification, appId }) => {
                         <button onClick={() => setPage('home')} className="text-blue-600 hover:underline mr-4">Siteyi Görüntüle</button>
                         <button onClick={() => signOut(auth)} className="bg-red-500 text-white px-4 py-2 rounded-lg">Çıkış Yap</button>
                     </div>
+                </div>
+
+                {/* İletişim Bilgileri */}
+                <div className="bg-white p-6 rounded-lg shadow-md mb-8">
+                    <h2 className="text-2xl font-semibold mb-4">İletişim Bilgilerini Düzenle</h2>
+                    {iletisim && (
+                        <form onSubmit={(e) => { e.preventDefault(); handleUpdate('iletisim', iletisim.id, { address: iletisim.address, phone: iletisim.phone, email: iletisim.email }); }}>
+                            <div className="mb-4">
+                                <label className="block text-gray-700 mb-1">Adres</label>
+                                <input value={iletisim.address} onChange={(e) => setIletisim({...iletisim, address: e.target.value})} className="w-full p-2 border rounded-lg"/>
+                            </div>
+                            <div className="mb-4">
+                                <label className="block text-gray-700 mb-1">Telefon</label>
+                                <input value={iletisim.phone} onChange={(e) => setIletisim({...iletisim, phone: e.target.value})} className="w-full p-2 border rounded-lg"/>
+                            </div>
+                            <div className="mb-4">
+                                <label className="block text-gray-700 mb-1">E-posta</label>
+                                <input type="email" value={iletisim.email} onChange={(e) => setIletisim({...iletisim, email: e.target.value})} className="w-full p-2 border rounded-lg"/>
+                            </div>
+                            <button type="submit" className="bg-blue-600 text-white px-6 py-2 rounded-lg">Kaydet</button>
+                        </form>
+                    )}
                 </div>
 
                 {/* Hakkımızda */}
@@ -626,6 +685,16 @@ const setupInitialData = async (db, appId) => {
                 direnc_bio: "2005 yılında, Dokuz Eylül Üniversitesi Hukuk Fakültesi'nden birincilikle mezun olmuştur. Ticaret Hukuku Anabilim Dalı'nda araştırma görevlisi olarak çalışmaya başlamıştır. 2017 yılında özel hukuk doktoru unvanını almıştır. Almanya Konstanz Üniversitesi ve Mannheim Üniversitesi'nde araştırmalarda bulunmuştur. Ekim 2021'den itibaren İzmir Ekonomi Üniversitesi Hukuk Fakültesi, Ticaret Hukuku Anabilim Dalı'nda Dr. Öğr. Üyesi olarak görev yapmaktadır. 2020'den beri Arabulucu olarak da faaliyet göstermektedir."
             });
         }
+        
+        const iletisimRef = doc(db, `artifacts/${appId}/public/data/iletisim`, "info");
+        const iletisimSnap = await getDoc(iletisimRef);
+        if (!iletisimSnap.exists()) {
+            await setDoc(iletisimRef, {
+                address: "Adalet Mh., Altınyol Cd., No: 41/101, Megapol Tower, K: 10, D: 1012 Bayraklı/İZMİR",
+                phone: "0 (530) 772 47 74",
+                email: "bilgi@akbayhukuk.com"
+            });
+        }
 
     } catch (error) {
         console.error("Initial data setup failed:", error);
@@ -726,7 +795,7 @@ function App() {
                 <KurumsalSection db={db} appId={appId} isAuthReady={isAuthReady} />
                 <HizmetlerSection db={db} appId={appId} isAuthReady={isAuthReady} />
                 <YayinlarSection db={db} appId={appId} isAuthReady={isAuthReady} />
-                <IletisimSection />
+                <IletisimSection db={db} appId={appId} isAuthReady={isAuthReady} />
             </main>
             <Footer />
         </div>
