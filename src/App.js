@@ -345,7 +345,8 @@ const IletisimSection = ({ db, appId, isAuthReady }) => {
                 </div>
             </div>
         </section>
-);
+    );
+};
 
 const Footer = () => (
     <footer className="bg-gray-800 text-white py-6">
@@ -480,12 +481,14 @@ const AdminDashboard = ({ auth, db, setPage, setNotification, appId }) => {
     };
 
     const handleDelete = async (collectionName, docId) => {
-        try {
-            await deleteDoc(doc(db, `artifacts/${appId}/public/data/${collectionName}`, docId));
-            setNotification({ type: 'success', message: 'Başarıyla silindi.' });
-        } catch (error) {
-            console.error("Silme hatası: ", error);
-            setNotification({ type: 'error', message: 'Silme işlemi başarısız oldu.' });
+        if (window.confirm("Bu öğeyi silmek istediğinizden emin misiniz?")) {
+            try {
+                await deleteDoc(doc(db, `artifacts/${appId}/public/data/${collectionName}`, docId));
+                setNotification({ type: 'success', message: 'Başarıyla silindi.' });
+            } catch (error) {
+                console.error("Silme hatası: ", error);
+                setNotification({ type: 'error', message: 'Silme işlemi başarısız oldu.' });
+            }
         }
     };
     
