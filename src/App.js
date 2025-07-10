@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 // Firebase Imports
 import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics"; // <-- 1. ADIM: Analytics import edildi
 import { 
     getAuth, 
     onAuthStateChanged, 
@@ -30,7 +31,8 @@ const firebaseConfig = {
   projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
   storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.REACT_APP_FIREBASE_APP_ID
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID // <-- 2. ADIM: Measurement ID eklendi
 };
 
 
@@ -351,7 +353,7 @@ const IletisimSection = ({ db, appId, isAuthReady }) => {
 const Footer = () => (
     <footer className="bg-gray-800 text-white py-6">
         <div className="container mx-auto px-6 text-center text-gray-400">
-            <p>&copy; 2024 Akbay Hukuk Bürosu. Tüm hakları saklıdır.</p>
+            <p>© 2024 Akbay Hukuk Bürosu. Tüm hakları saklıdır.</p>
         </div>
     </footer>
 );
@@ -719,11 +721,13 @@ function App() {
 
     // Tek seferlik Firebase kurulumu
     useEffect(() => {
-        if (firebaseConfig.apiKey) {
+        if (firebaseConfig.apiKey && firebaseConfig.measurementId) { // <-- 3. ADIM: Measurement ID'nin varlığı kontrol ediliyor
             const initializedApp = initializeApp(firebaseConfig);
             setAuth(getAuth(initializedApp));
             setDb(getFirestore(initializedApp));
             setAppId(firebaseConfig.projectId);
+            getAnalytics(initializedApp); // <-- 4. ADIM: Analytics başlatılıyor
+            console.log("Firebase & Analytics initialized.");
         } else {
             console.error("Firebase config is missing! Check your Netlify environment variables.");
             setIsAuthReady(true); // Prevent getting stuck
